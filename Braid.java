@@ -4,14 +4,20 @@ import javax.imageio.ImageIO;
 /* Representa o personagem do jogo */
 public class Braid { 
 
+	// variáveis das imagens
 	public BufferedImage[] correndoQuadros;
 	public BufferedImage correndoSprite;
-	int correndoQtdQuadros, correndoLargura, correndoAltura;
-	int correndoTempoQuadro;
-	int correndoIndexAtual;
+	public int correndoQtdQuadros, correndoLargura, correndoAltura;
+	public int correndoTempoQuadro;
+	public int correndoIndexAtual;
+	public BufferedImage[] pulandoQuadros;
+	public BufferedImage pulandoSprite;
+	public int pulandoQtdQuadros, pulandoLargura, pulandoAltura;
+	public int pulandoTempoQuadro;
+	public int pulandoIndexAtual;
 
-	int posX, posY, velY;
-	Estado estado;
+	public int posX, posY, posY_inicial, velY; // variáveis de posição e velocidade
+	public Estado estado; // variável que controla o estado
 
 	// variáveis de tempo
 	long tempoAtual,tempoAnterior,tempoDelta, tempoDecorrido;
@@ -23,10 +29,18 @@ public class Braid {
 		correndoLargura = 130;
 		correndoAltura = 150;
 		correndoIndexAtual = 0;
-		correndoTempoQuadro = 20;
+		correndoTempoQuadro = 15;
+		pulandoSprite = Game.recursos.spriteBraidJump;
+		pulandoQtdQuadros = 15;
+		pulandoQuadros = new BufferedImage[pulandoQtdQuadros];
+		pulandoLargura = 130;
+		pulandoAltura = 150;
+		pulandoIndexAtual = 0;
+		pulandoTempoQuadro = 50;
 
 		posX=30;
-		posY=220;
+		posY_inicial=220;
+		posY=posY_inicial;
 		velY=0;
 		estado = Estado.CORRENDO;
 		tempoDecorrido = 0;
@@ -37,6 +51,31 @@ public class Braid {
 			int y1 = 0;
 			correndoQuadros[i] = correndoSprite.getSubimage(x1,y1,correndoLargura, correndoAltura);
 		}
+		for(int i=0; i<pulandoQtdQuadros; i++) {
+			int x1 = pulandoLargura*i;
+			int y1 = 0;
+			pulandoQuadros[i] = pulandoSprite.getSubimage(x1,y1,pulandoLargura, pulandoAltura);
+		}
+	}
+
+	public void update(){
+		if(estado == Estado.PULANDO){
+			posY = posY+velY;
+			velY++;
+		}
+	}
+
+	public void iniciarPulo(){
+		pulandoIndexAtual=0;
+		velY=-21; // inicia o pula
+		estado = Braid.Estado.PULANDO;
+	}
+
+	public void pararPulo(){
+		correndoIndexAtual=12;
+		velY=0;
+		estado = Braid.Estado.CORRENDO; // para o pulo
+		posY=posY_inicial;
 	}
 	
 	public void mudarQuadro() {
@@ -52,9 +91,12 @@ public class Braid {
 				tempoDecorrido = 0;
 			}
 		}else if(estado == Estado.PULANDO){
-
+			if(tempoDecorrido > pulandoTempoQuadro) {
+				pulandoIndexAtual++;			
+				if(pulandoIndexAtual>=pulandoQtdQuadros) pulandoIndexAtual = 0;
+				tempoDecorrido = 0;
+			}
 		}
-
 		tempoAnterior = tempoAtual; // tempo inicial do quadro anterior
 	}
 
@@ -62,7 +104,7 @@ public class Braid {
 		if(estado == Estado.CORRENDO){
 			return correndoQuadros[correndoIndexAtual];
 		}else if(estado == Estado.PULANDO){
-
+			return pulandoQuadros[pulandoIndexAtual];
 		}
 		return null;
 	}

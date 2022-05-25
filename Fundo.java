@@ -15,11 +15,10 @@ public class Fundo {
 		fundoAltura = 480;
         fundovelX = -1;
 
-        fundo1PosX=0;
-        fundo1posY=0;
+        fundo1PosX = 0;
+        fundo1posY = 0;
         fundo2PosX = fundo1PosX+fundoLargura;
-        fundo2posY=fundo1posY;
-
+        fundo2posY = fundo1posY;
 	}
 
 	public void remontarFundo(){

@@ -10,6 +10,7 @@ public class Game extends JPanel {
 	public static Recursos recursos;
 
 	public Braid braid;
+	public MonstroBola monstroBola;
 	public Piso piso;
 	public Fundo fundo;
 
@@ -35,15 +36,6 @@ public class Game extends JPanel {
 					case KeyEvent.VK_UP: // tecla cima
 						k_cima = true;
 						break;
-					case KeyEvent.VK_DOWN: // tecla baixo
-						k_baixo = true;
-						break;
-					case KeyEvent.VK_LEFT: // tecla esquerda
-						k_esquerda = true;
-						break;
-					case KeyEvent.VK_RIGHT: // tecla direita
-						k_direita = true;
-						break;
 				}
 			}
 
@@ -53,20 +45,12 @@ public class Game extends JPanel {
 					case KeyEvent.VK_UP: // tecla cima
 						k_cima = false;
 						break;
-					case KeyEvent.VK_DOWN: // tecla baixo
-						k_baixo = false;
-						break;
-					case KeyEvent.VK_LEFT: // tecla esquerda
-						k_esquerda = false;
-						break;
-					case KeyEvent.VK_RIGHT: // tecla direita
-						k_direita = false;
-						break;
 				}
 			}
 		});
 
 		braid = new Braid();
+		monstroBola = new MonstroBola();
 		piso = new Piso();
 		fundo = new Fundo();
 
@@ -98,20 +82,26 @@ public class Game extends JPanel {
 	}
 
 	public void handlerEvent() {
-
+		if(k_cima && braid.estado!=Braid.Estado.PULANDO){
+			braid.iniciarPulo();
+		}
 	}
 
 	public void update() {
 		// movimenta o piso
-		piso.piso1PosX = piso.piso1PosX + piso.pisovelX;
-		piso.piso2PosX = piso.piso2PosX + piso.pisovelX;
+		piso.piso1PosX = piso.piso1PosX + piso.pisoVelX;
+		piso.piso2PosX = piso.piso2PosX + piso.pisoVelX;
 		piso.remontarPiso();
 		// movimenta o fundo
 		fundo.fundo1PosX = fundo.fundo1PosX + fundo.fundovelX;
 		fundo.fundo2PosX = fundo.fundo2PosX + fundo.fundovelX;
 		fundo.remontarFundo();
+		// movimenta o personagem
+		braid.update();
+		monstroBola.update();
 
 		braid.mudarQuadro();
+		monstroBola.mudarQuadro();
 
 		testeColisao();
 	}
@@ -122,7 +112,11 @@ public class Game extends JPanel {
 
 	// METODOS ---------------------------------------------------------
 	public void testeColisao() {
-
+		// verifica a colisão do personagem com o chão
+		if(braid.estado==Braid.Estado.PULANDO &&
+			(braid.posY+braid.pulandoAltura)>=braid.posY_inicial+braid.pulandoAltura){
+			braid.pararPulo();
+		}
 	}
 
 	// METODOS ESPECIAIS ---------------------------------------------------------
@@ -138,6 +132,7 @@ public class Game extends JPanel {
 		g.drawImage(fundo.fundo2, fundo.fundo2PosX, fundo.fundo2posY, null);
 		g.drawImage(piso.piso1, piso.piso1PosX, piso.piso1posY, null);
 		g.drawImage(piso.piso2, piso.piso2PosX, piso.piso2posY, null);
+		g.drawImage(monstroBola.obterQuadro(), monstroBola.posX, monstroBola.posY, null);
 		g.drawImage(braid.obterQuadro(), braid.posX, braid.posY, null);
 	}
 }

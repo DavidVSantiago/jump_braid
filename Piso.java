@@ -4,7 +4,7 @@ import javax.imageio.ImageIO;
 /* Representa o personagem do jogo */
 public class Piso { 
 	public BufferedImage piso1,piso2;
-    int pisoLargura,pisoAltura,pisovelX;
+    int pisoLargura,pisoAltura,pisoVelX;
 	int piso1PosX, piso1posY;
 	int piso2PosX, piso2posY;
 
@@ -13,7 +13,7 @@ public class Piso {
         piso2 = Game.recursos.imgGround;
 		pisoLargura = 1024;
 		pisoAltura = 128;
-        pisovelX = -4;
+        pisoVelX = -9;
 
         piso1PosX=0;
         piso1posY=352;
