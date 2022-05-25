@@ -1,4 +1,5 @@
 import java.awt.Color;
+import java.awt.Toolkit;
 import java.awt.Graphics;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -10,7 +11,7 @@ public class Game extends JPanel {
 	public static Recursos recursos;
 
 	public Braid braid;
-	public MonstroBola monstroBola;
+	public GeradorMostros geradorMostros;
 	public Piso piso;
 	public Fundo fundo;
 
@@ -19,6 +20,9 @@ public class Game extends JPanel {
 	public boolean k_baixo = false;
 	public boolean k_direita = false;
 	public boolean k_esquerda = false;
+
+	// variáveis de tempo
+	long tempoAtual,tempoAnterior,tempoDelta;
 
 	// CONSTRUTOR ---------------------------------------------------------
 	public Game() {
@@ -50,7 +54,7 @@ public class Game extends JPanel {
 		});
 
 		braid = new Braid();
-		monstroBola = new MonstroBola();
+		geradorMostros = new GeradorMostros();
 		piso = new Piso();
 		fundo = new Fundo();
 
@@ -68,10 +72,16 @@ public class Game extends JPanel {
 
 	// GAMELOOP ---------------------------------------------------------
 	public void gameloop() {
+		tempoAnterior=System.currentTimeMillis();
 		while (true) {
+			tempoAtual = System.currentTimeMillis(); // tempo inicial desse quadro
+			tempoDelta = tempoAtual - tempoAnterior; // quanto tempo se passou desde o ultimo quadro
+
 			handlerEvent();
-			update();
+			update(tempoDelta);
 			render();
+
+			tempoAnterior = tempoAtual; // tempo inicial do quadro anterior
 
 			try {// dando uma pause de 17 milisegundos (60FPS)
 				Thread.sleep(17);
@@ -87,21 +97,17 @@ public class Game extends JPanel {
 		}
 	}
 
-	public void update() {
-		// movimenta o piso
-		piso.piso1PosX = piso.piso1PosX + piso.pisoVelX;
-		piso.piso2PosX = piso.piso2PosX + piso.pisoVelX;
-		piso.remontarPiso();
-		// movimenta o fundo
+	public void update(long tempoDelta) {
+		piso.update();
+		// atualiza o fundo
 		fundo.fundo1PosX = fundo.fundo1PosX + fundo.fundovelX;
 		fundo.fundo2PosX = fundo.fundo2PosX + fundo.fundovelX;
 		fundo.remontarFundo();
-		// movimenta o personagem
+		// atualiza o personagem
 		braid.update();
-		monstroBola.update();
-
-		braid.mudarQuadro();
-		monstroBola.mudarQuadro();
+		braid.mudarQuadro(tempoDelta);
+		// atualiza os monstros
+		geradorMostros.update(tempoDelta);
 
 		testeColisao();
 	}
@@ -130,9 +136,9 @@ public class Game extends JPanel {
 		// desenha o personagem na tela
 		g.drawImage(fundo.fundo1, fundo.fundo1PosX, fundo.fundo1posY, null);
 		g.drawImage(fundo.fundo2, fundo.fundo2PosX, fundo.fundo2posY, null);
-		g.drawImage(piso.piso1, piso.piso1PosX, piso.piso1posY, null);
-		g.drawImage(piso.piso2, piso.piso2PosX, piso.piso2posY, null);
-		g.drawImage(monstroBola.obterQuadro(), monstroBola.posX, monstroBola.posY, null);
+		geradorMostros.render(g); // pinta os monstros na tela
 		g.drawImage(braid.obterQuadro(), braid.posX, braid.posY, null);
+		piso.render(g);
+		Toolkit.getDefaultToolkit().sync(); // bug do linux
 	}
 }

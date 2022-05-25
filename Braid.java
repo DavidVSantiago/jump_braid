@@ -19,8 +19,7 @@ public class Braid {
 	public int posX, posY, posY_inicial, velY; // variáveis de posição e velocidade
 	public Estado estado; // variável que controla o estado
 
-	// variáveis de tempo
-	long tempoAtual,tempoAnterior,tempoDelta, tempoDecorrido;
+	long tempoDecorrido;
 	
 	public Braid() {
 		correndoSprite = Game.recursos.spriteBraidRun;
@@ -39,7 +38,7 @@ public class Braid {
 		pulandoTempoQuadro = 50;
 
 		posX=30;
-		posY_inicial=220;
+		posY_inicial=295;
 		posY=posY_inicial;
 		velY=0;
 		estado = Estado.CORRENDO;
@@ -78,9 +77,8 @@ public class Braid {
 		posY=posY_inicial;
 	}
 	
-	public void mudarQuadro() {
-		tempoAtual = System.currentTimeMillis(); // tempo inicial desse quadro
-		tempoDelta = tempoAtual - tempoAnterior; // quanto tempo se passou desde o ultimo quadro
+	public void mudarQuadro(long tempoDelta) {
+		
 		tempoDecorrido += tempoDelta;
 		
 		if(estado == Estado.CORRENDO){
@@ -97,7 +95,6 @@ public class Braid {
 				tempoDecorrido = 0;
 			}
 		}
-		tempoAnterior = tempoAtual; // tempo inicial do quadro anterior
 	}
 
 	public BufferedImage obterQuadro(){

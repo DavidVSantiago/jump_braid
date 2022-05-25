@@ -13,8 +13,7 @@ public class MonstroBola {
 
 	public int posX, posY, velX; // variáveis de posição e velocidade
 
-	// variáveis de tempo
-	long tempoAtual,tempoAnterior,tempoDelta, tempoDecorrido;
+	long tempoDecorrido;
 	
 	public MonstroBola() {
 		correndoSprite = Game.recursos.spriteMostroBola;
@@ -26,7 +25,7 @@ public class MonstroBola {
 		correndoTempoQuadro = 30;
 		
 		posX=1000;
-		posY=263;
+		posY=298;
 		velX=-7;
 		tempoDecorrido = 0;
 		
@@ -37,16 +36,17 @@ public class MonstroBola {
 			correndoQuadros[i] = correndoSprite.getSubimage(x1,y1,correndoLargura, correndoAltura);
 		}
 	}
+	public void reposicionar(){
+		posX=1000;
+		posY=338;
+	}
 
 	public void update(){
 		posX = posX+velX;
 	
 	}
-
 	
-	public void mudarQuadro() {
-		tempoAtual = System.currentTimeMillis(); // tempo inicial desse quadro
-		tempoDelta = tempoAtual - tempoAnterior; // quanto tempo se passou desde o ultimo quadro
+	public void mudarQuadro(long tempoDelta) {
 		tempoDecorrido += tempoDelta;
 
 		if (tempoDecorrido > correndoTempoQuadro) {
@@ -55,7 +55,6 @@ public class MonstroBola {
 				correndoIndexAtual = 0;
 			tempoDecorrido = 0;
 		}
-		tempoAnterior = tempoAtual; // tempo inicial do quadro anterior
 	}
 
 	public BufferedImage obterQuadro(){
