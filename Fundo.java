@@ -4,9 +4,9 @@ import javax.imageio.ImageIO;
 /* Representa o personagem do jogo */
 public class Fundo { 
 	public BufferedImage fundo1,fundo2;
-    int fundoLargura,fundoAltura,fundovelX;
-	int fundo1PosX, fundo1posY;
-	int fundo2PosX, fundo2posY;
+    int fundoLargura,fundoAltura,fundovelX,fundoPosY;
+	int fundo1PosX;
+	int fundo2PosX;
 
 	public Fundo() {
 		fundo1 = Game.recursos.imgFundo;
@@ -16,9 +16,8 @@ public class Fundo {
         fundovelX = -1;
 
         fundo1PosX = 0;
-        fundo1posY = 0;
+        fundoPosY = 0;
         fundo2PosX = fundo1PosX+fundoLargura;
-        fundo2posY = fundo1posY;
 	}
 
 	public void remontarFundo(){
@@ -28,4 +27,9 @@ public class Fundo {
             fundo2PosX = fundo1PosX+fundoLargura;
         }
 	}
+
+    public void reiniciaJogo(){
+        fundo1PosX = 0;
+        fundo2PosX = fundo1PosX+fundoLargura;
+    }
 }

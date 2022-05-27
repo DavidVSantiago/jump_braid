@@ -1,12 +1,14 @@
 import java.awt.image.BufferedImage;
-import javax.imageio.ImageIO;
+import java.awt.Color;
+import java.awt.Graphics;
 
 /* Representa o personagem do jogo */
-public class Braid { 
+public class Tim { 
 
 	// variáveis das imagens
 	public BufferedImage[] correndoQuadros;
 	public BufferedImage correndoSprite;
+	public BufferedImage mortoImagem;
 	public int correndoQtdQuadros, correndoLargura, correndoAltura;
 	public int correndoTempoQuadro;
 	public int correndoIndexAtual;
@@ -17,11 +19,14 @@ public class Braid {
 	public int pulandoIndexAtual;
 
 	public int posX, posY, posY_inicial, velY; // variáveis de posição e velocidade
-	public Estado estado; // variável que controla o estado
+	public int colX, colY, colLargura, colAltura;
+	Color colColor;
 
 	long tempoDecorrido;
 	
-	public Braid() {
+	public Estado estado; // variável que controla o estado
+	
+	public Tim() {
 		correndoSprite = Game.recursos.spriteBraidRun;
 		correndoQtdQuadros = 27;
 		correndoQuadros = new BufferedImage[correndoQtdQuadros];
@@ -36,11 +41,18 @@ public class Braid {
 		pulandoAltura = 150;
 		pulandoIndexAtual = 0;
 		pulandoTempoQuadro = 50;
+		mortoImagem = Game.recursos.braidDied;
 
 		posX=30;
 		posY_inicial=295;
 		posY=posY_inicial;
 		velY=0;
+		colX = posX+25;
+		colY = posY+10;
+		colLargura = 75;
+		colAltura = 130;
+		colColor = new Color(0, 0, 255, 128); // azul transparente
+
 		estado = Estado.CORRENDO;
 		tempoDecorrido = 0;
 		
@@ -60,20 +72,27 @@ public class Braid {
 	public void update(){
 		if(estado == Estado.PULANDO){
 			posY = posY+velY;
+			colY = colY+velY;
 			velY++;
 		}
+	}
+
+	public void render(Graphics g){
+        g.drawImage(obterQuadro(), posX, posY, null);
+		//g.setColor(colColor);
+		//g.fillRect(colX, colY, colLargura, colAltura);
 	}
 
 	public void iniciarPulo(){
 		pulandoIndexAtual=0;
 		velY=-21; // inicia o pula
-		estado = Braid.Estado.PULANDO;
+		estado = Tim.Estado.PULANDO;
 	}
 
 	public void pararPulo(){
 		correndoIndexAtual=12;
 		velY=0;
-		estado = Braid.Estado.CORRENDO; // para o pulo
+		estado = Tim.Estado.CORRENDO; // para o pulo
 		posY=posY_inicial;
 	}
 	
@@ -102,11 +121,24 @@ public class Braid {
 			return correndoQuadros[correndoIndexAtual];
 		}else if(estado == Estado.PULANDO){
 			return pulandoQuadros[pulandoIndexAtual];
+		}else if(estado == Estado.MORTO){
+			return mortoImagem;
 		}
 		return null;
 	}
 
+	public void reiniciaJogo(){
+		correndoIndexAtual = 0;
+		pulandoIndexAtual = 0;
+		posX=30;
+		posY=posY_inicial;
+		velY=0;
+		colX = posX+25;
+		colY = posY+10;
+		estado = Estado.CORRENDO;
+	}
+
 	public enum Estado{
-		CORRENDO, PULANDO;
+		CORRENDO, PULANDO, MORTO;
 	}
 }

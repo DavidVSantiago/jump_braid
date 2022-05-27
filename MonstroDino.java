@@ -3,7 +3,7 @@ import java.awt.Color;
 import java.awt.Graphics;
 
 /* Representa o personagem do jogo */
-public class MonstroBola { 
+public class MonstroDino { 
 
 	// variáveis das imagens
 	public BufferedImage[] correndoQuadros;
@@ -18,19 +18,18 @@ public class MonstroBola {
 
 	long tempoDecorrido;
 	
-	public MonstroBola() {
-		correndoSprite = Game.recursos.spriteMostroBola;
-		correndoQtdQuadros = 16;
+	public MonstroDino() {
+		correndoSprite = Game.recursos.spriteMostroDino;
+		correndoQtdQuadros = 12;
 		correndoQuadros = new BufferedImage[correndoQtdQuadros];
-		correndoLargura = 102;
-		correndoAltura = 100;
+		correndoLargura = 139;
+		correndoAltura = 125;
 		correndoIndexAtual = 0;
-		correndoTempoQuadro = 30;
+		correndoTempoQuadro = 50;
 		
 		reposicionar();
-
-		colLargura = 72;
-		colAltura = 80;
+		colLargura = 85;
+		colAltura = 105;
 		colColor = new Color(255, 0, 0, 128); // vermelho transparente
 
 		velX=-7;
@@ -45,9 +44,9 @@ public class MonstroBola {
 	}
 	public void reposicionar(){
 		posX=1000;
-		posY=338;
-		colX = posX+15;
-		colY = posY+10;
+		posY=312;
+		colX = posX+38;
+		colY = posY+15;
 	}
 
 	public void update(){

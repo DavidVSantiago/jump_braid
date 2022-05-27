@@ -4,13 +4,14 @@ import java.awt.Graphics;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import javax.swing.JPanel;
+import java.awt.Color;
 
 public class Game extends JPanel {
 
 	// ATRIBUTOS ---------------------------------------------------------
 	public static Recursos recursos;
 
-	public Braid braid;
+	public Tim tim;
 	public GeradorMostros geradorMostros;
 	public Piso piso;
 	public Fundo fundo;
@@ -22,10 +23,16 @@ public class Game extends JPanel {
 	public boolean k_esquerda = false;
 
 	// variáveis de tempo
-	long tempoAtual,tempoAnterior,tempoDelta;
+	public long tempoAtual,tempoAnterior,tempoDelta;
+
+	// Estado do jogo
+	public Estado ESTADO;
+	long tempoDecorrido,tempoGameOver;
+	Color pretoTransp;
 
 	// CONSTRUTOR ---------------------------------------------------------
 	public Game() {
+		ESTADO = Estado.CARREGANDO;
 		recursos = new Recursos();
 		// adiciona o escutador de eventos de pressionamento do teclado
 		requestFocus();
@@ -49,14 +56,21 @@ public class Game extends JPanel {
 					case KeyEvent.VK_UP: // tecla cima
 						k_cima = false;
 						break;
+					case KeyEvent.VK_Q:
+						ESTADO = Estado.EXECUTANDO;
+						break;
 				}
 			}
 		});
 
-		braid = new Braid();
+		tim = new Tim();
 		geradorMostros = new GeradorMostros();
 		piso = new Piso();
 		fundo = new Fundo();
+
+		tempoDecorrido = 0;
+		tempoGameOver = 2000;
+		pretoTransp = new Color(0, 0, 0, 128); // preto transparente
 
 		setFocusable(true); // para poder tratar eventos
 		setLayout(null);
@@ -72,6 +86,7 @@ public class Game extends JPanel {
 
 	// GAMELOOP ---------------------------------------------------------
 	public void gameloop() {
+		ESTADO = Estado.EXECUTANDO;
 		tempoAnterior=System.currentTimeMillis();
 		while (true) {
 			tempoAtual = System.currentTimeMillis(); // tempo inicial desse quadro
@@ -92,24 +107,28 @@ public class Game extends JPanel {
 	}
 
 	public void handlerEvent() {
-		if(k_cima && braid.estado!=Braid.Estado.PULANDO){
-			braid.iniciarPulo();
+		if(ESTADO == Estado.EXECUTANDO){
+			if(k_cima && tim.estado!=Tim.Estado.PULANDO){
+				tim.iniciarPulo();
+			}
 		}
 	}
 
 	public void update(long tempoDelta) {
-		piso.update();
-		// atualiza o fundo
-		fundo.fundo1PosX = fundo.fundo1PosX + fundo.fundovelX;
-		fundo.fundo2PosX = fundo.fundo2PosX + fundo.fundovelX;
-		fundo.remontarFundo();
-		// atualiza o personagem
-		braid.update();
-		braid.mudarQuadro(tempoDelta);
-		// atualiza os monstros
-		geradorMostros.update(tempoDelta);
+		if(ESTADO == Estado.EXECUTANDO){
+			piso.update();
+			// atualiza o fundo
+			fundo.fundo1PosX = fundo.fundo1PosX + fundo.fundovelX;
+			fundo.fundo2PosX = fundo.fundo2PosX + fundo.fundovelX;
+			fundo.remontarFundo();
+			// atualiza o personagem
+			tim.update();
+			tim.mudarQuadro(tempoDelta);
+			// atualiza os monstros
+			geradorMostros.update(tempoDelta);
 
-		testeColisao();
+			testeColisoes();
+		}
 	}
 
 	public void render() {
@@ -117,11 +136,35 @@ public class Game extends JPanel {
 	}
 
 	// METODOS ---------------------------------------------------------
-	public void testeColisao() {
+	public void testeColisoes() {
 		// verifica a colisão do personagem com o chão
-		if(braid.estado==Braid.Estado.PULANDO &&
-			(braid.posY+braid.pulandoAltura)>=braid.posY_inicial+braid.pulandoAltura){
-			braid.pararPulo();
+		if(tim.estado==Tim.Estado.PULANDO &&
+			(tim.posY+tim.pulandoAltura)>=tim.posY_inicial+tim.pulandoAltura){
+			tim.pararPulo();
+		}
+
+		// verifica a colisão do personagem com os monstros bola
+		for(MonstroBola m : geradorMostros.listaMonstrosBola){
+			if(tim.colX+tim.colLargura>=m.colX // lado esquerdo do monstro
+			&& tim.colX<=m.colX+m.colLargura // lado direito do monstro
+			&& tim.colY+tim.colAltura>=m.colY // lado superior do monstro
+			&& tim.colY<=m.colY+m.colAltura // lado inferior do monstro
+			){
+				ESTADO = Estado.GAMEOVER;
+				tim.estado = Tim.Estado.MORTO;
+			}
+		}
+
+		// verifica a colisão do personagem com os monstros dino
+		for(MonstroDino m : geradorMostros.listaMonstrosDino){
+			if(tim.colX+tim.colLargura>=m.colX // lado esquerdo do monstro
+			&& tim.colX<=m.colX+m.colLargura // lado direito do monstro
+			&& tim.colY+tim.colAltura>=m.colY // lado superior do monstro
+			&& tim.colY<=m.colY+m.colAltura // lado inferior do monstro
+			){
+				ESTADO = Estado.GAMEOVER;
+				tim.estado = Tim.Estado.MORTO;
+			}
 		}
 	}
 
@@ -130,15 +173,43 @@ public class Game extends JPanel {
 	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
-		// desenhar os elementos na tela
-		setBackground(Color.LIGHT_GRAY);
 
 		// desenha o personagem na tela
-		g.drawImage(fundo.fundo1, fundo.fundo1PosX, fundo.fundo1posY, null);
-		g.drawImage(fundo.fundo2, fundo.fundo2PosX, fundo.fundo2posY, null);
+		g.drawImage(fundo.fundo1, fundo.fundo1PosX, fundo.fundoPosY, null);
+		g.drawImage(fundo.fundo2, fundo.fundo2PosX, fundo.fundoPosY, null);
 		geradorMostros.render(g); // pinta os monstros na tela
-		g.drawImage(braid.obterQuadro(), braid.posX, braid.posY, null);
+		tim.render(g);
 		piso.render(g);
-		Toolkit.getDefaultToolkit().sync(); // bug do linux
+
+
+		if(ESTADO==Estado.GAMEOVER){
+			tempoDecorrido+=tempoDelta;
+
+			g.setColor(pretoTransp);
+			g.fillRect(0,0,Principal.LARGURA_TELA, Principal.ALTURA_TELA);
+			
+			g.setFont(recursos.fontGameOver);
+			g.setColor(Color.WHITE);
+			g.drawString("GAME OVER!",(int)(Principal.LARGURA_TELA*0.4),(int)(Principal.ALTURA_TELA*0.2));
+			
+			if(tempoDecorrido>=tempoGameOver){
+				tempoDecorrido=0;
+				reiniciaJogo();
+				ESTADO=Estado.EXECUTANDO;
+			}
+		}
+
+		Toolkit.getDefaultToolkit().sync(); // bug do linux		
+	}
+
+	public void reiniciaJogo(){
+		tim.reiniciaJogo();
+		geradorMostros.reiniciaJogo();
+		piso.reiniciaJogo();
+		fundo.reiniciaJogo();
+	}
+
+	public enum Estado{
+		CARREGANDO, EXECUTANDO, PAUSADO, GAMEOVER;
 	}
 }

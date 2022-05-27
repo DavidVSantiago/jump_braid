@@ -3,13 +3,16 @@ import java.util.Random;
 import java.util.Stack;
 import java.awt.Graphics;
 
+
 /* Classe responsável por gerar monstros de forma aleatória */
 public class GeradorMostros {
     
     // atributos -----------------------------
-    public Stack<MonstroBola> pollMonstros;
-    public ArrayList<MonstroBola> monstrosTela;
-    public int qtdMonstros = 5;
+    public Stack<MonstroDino> pilhaMonstrosDino;
+    public Stack<MonstroBola> pilhaMonstrosBola;
+    public ArrayList<MonstroDino> listaMonstrosDino;
+    public ArrayList<MonstroBola> listaMonstrosBola;
+    public int qtdMonstros = 2; // para cada tipo
 
     long tempoDecorrido;
     Random random;
@@ -17,14 +20,20 @@ public class GeradorMostros {
 
     // construtor ----------------------------
     public GeradorMostros(){
-        pollMonstros = new Stack<MonstroBola>();
-        monstrosTela = new ArrayList<MonstroBola>();
+        pilhaMonstrosDino = new Stack<MonstroDino>();
+        pilhaMonstrosBola = new Stack<MonstroBola>();
+        listaMonstrosDino = new ArrayList<MonstroDino>();
+        listaMonstrosBola = new ArrayList<MonstroBola>();
         for(int i=0;i<qtdMonstros;i++){
+            MonstroDino monstroDino = new MonstroDino();
+            pilhaMonstrosDino.push(monstroDino);
+            listaMonstrosDino.add(monstroDino);
             MonstroBola monstroBola = new MonstroBola();
-            pollMonstros.push(monstroBola);
-            monstrosTela.add(monstroBola);
+            pilhaMonstrosBola.push(monstroBola);
+            listaMonstrosBola.add(monstroBola);
         }
-        monstrosTela.clear();
+        listaMonstrosDino.clear();
+        listaMonstrosBola.clear();
         tempoDecorrido = 0;
         random = new Random();
         tempoGeracao = 2000;
@@ -33,7 +42,6 @@ public class GeradorMostros {
     }
 
     public void update(long tempoDelta){
-
         // geração de monstros ------------------
         tempoDecorrido+=tempoDelta;
         if(tempoDecorrido >= tempoGeracao) { // a cada 1 segundo
@@ -45,35 +53,76 @@ public class GeradorMostros {
 
         checarSaidaMonstros(); // verifica sa saida dos monstros na tela
 
-        // atualização dos monstros
-        for(MonstroBola m: monstrosTela){
+        // atualização dos monstros dino
+        for(MonstroDino m : listaMonstrosDino){
+            m.update();
+            m.mudarQuadro(tempoDelta);
+        }
+        for(MonstroBola m : listaMonstrosBola){
             m.update();
             m.mudarQuadro(tempoDelta);
         }
     }
 
     public void render(Graphics g){
-		for(MonstroBola m: monstrosTela){
-            g.drawImage(m.obterQuadro(), m.posX, m.posY, null);
+        for(MonstroDino m : listaMonstrosDino){
+            m.render(g);
+        }
+        for(MonstroBola m : listaMonstrosBola){
+            m.render(g);
         }
 	}
 
     // metodos -------------------------------
     public void gerarNovoMonstro(){
-        if(pollMonstros.empty()) return; // não gera monstro se não houver no poll
-        MonstroBola monstroBola = pollMonstros.pop();
-        monstroBola.reposicionar();
-        monstrosTela.add(monstroBola);
+        // gera um numero aleatório para saber se vai ser dino ou bola
+        if(random.nextInt()%2==0){ // se for par, vai ser dino
+            if(pilhaMonstrosDino.empty()) return; // não gera monstro se não houver no poll
+            MonstroDino monstroDino = pilhaMonstrosDino.pop();
+            monstroDino.reposicionar();
+            listaMonstrosDino.add(monstroDino);
+        }else{// se for ímpar, vai ser bola
+            if(pilhaMonstrosBola.empty()) return; // não gera monstro se não houver no poll
+            MonstroBola monstroBola = pilhaMonstrosBola.pop();
+            monstroBola.reposicionar();
+            listaMonstrosBola.add(monstroBola);
+        }
+
+        
     }
     public void checarSaidaMonstros(){
-        for(int i=0;i<monstrosTela.size();i++){
-            MonstroBola m = monstrosTela.get(i);
+        for(int i=0;i<listaMonstrosDino.size();i++){
+            MonstroDino m = listaMonstrosDino.get(i);
             // verifica se cada monstro saiu da tela pela esquerda
             if(m.posX+m.correndoLargura<=0){
                 // recicla o mosntro
-                pollMonstros.push(m);
-                monstrosTela.remove(m);
+                pilhaMonstrosDino.push(m);
+                listaMonstrosDino.remove(m);
+            }
+        }
+        for(int i=0;i<listaMonstrosBola.size();i++){
+            MonstroBola m = listaMonstrosBola.get(i);
+            // verifica se cada monstro saiu da tela pela esquerda
+            if(m.posX+m.correndoLargura<=0){
+                // recicla o mosntro
+                pilhaMonstrosBola.push(m);
+                listaMonstrosBola.remove(m);
             }
         }
     }
+
+    public void reiniciaJogo(){
+        for(int i=0;i<listaMonstrosDino.size();i++){
+            MonstroDino m = listaMonstrosDino.get(i);
+            m.reiniciaJogo();
+            pilhaMonstrosDino.push(m);
+            listaMonstrosDino.remove(m);
+        }
+		for(int i=0;i<listaMonstrosBola.size();i++){
+            MonstroBola m = listaMonstrosBola.get(i);
+            m.reiniciaJogo();
+            pilhaMonstrosBola.push(m);
+            listaMonstrosBola.remove(m);
+        }
+	}
 }

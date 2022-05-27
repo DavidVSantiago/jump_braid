@@ -47,4 +47,10 @@ public class Piso {
             piso3PosX = piso2PosX+pisoLargura;
         }
 	}
+
+    public void reiniciaJogo(){
+        piso1PosX=0;
+        piso2PosX = piso1PosX+pisoLargura;
+        piso3PosX = piso2PosX+pisoLargura;
+    }
 }
