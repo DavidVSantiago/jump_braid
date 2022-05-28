@@ -4,10 +4,9 @@ import java.awt.Graphics;
 /* Representa o personagem do jogo */
 public class Piso { 
 	public BufferedImage piso1,piso2,piso3;
-    int pisoLargura,pisoAltura,pisoVelX,pisoPosY;
-	int piso1PosX;
-	int piso2PosX;
-    int piso3PosX;
+    int pisoLargura,pisoAltura;
+    double pisoVelX,pisoPosY;
+	double piso1PosX,piso2PosX,piso3PosX;
 
 	public Piso() {
 		piso1 = Game.recursos.imgGround;
@@ -26,6 +25,7 @@ public class Piso {
 
     public void update(){
         // atualiza o piso
+        pisoVelX = -9*Game.recursos.velocidadeJogo;
 		piso1PosX = piso1PosX + pisoVelX;
         piso2PosX = piso2PosX + pisoVelX;
         piso3PosX = piso3PosX + pisoVelX;
@@ -33,9 +33,9 @@ public class Piso {
     }
 
     public void render(Graphics g){
-        g.drawImage(piso1,piso1PosX,pisoPosY, null);
-		g.drawImage(piso2,piso2PosX,pisoPosY, null);
-        g.drawImage(piso3,piso3PosX,pisoPosY, null);
+        g.drawImage(piso1,(int)piso1PosX,(int)pisoPosY, null);
+		g.drawImage(piso2,(int)piso2PosX,(int)pisoPosY, null);
+        g.drawImage(piso3,(int)piso3PosX,(int)pisoPosY, null);
     }
 
 	public void remontarPiso(){

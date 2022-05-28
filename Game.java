@@ -27,8 +27,7 @@ public class Game extends JPanel {
 
 	// Estado do jogo
 	public Estado ESTADO;
-	long tempoDecorrido,tempoGameOver;
-	Color pretoTransp;
+	long tempoDecorridoGameOver,tempoJogo,tempoGameOver;
 
 	// CONSTRUTOR ---------------------------------------------------------
 	public Game() {
@@ -68,9 +67,9 @@ public class Game extends JPanel {
 		piso = new Piso();
 		fundo = new Fundo();
 
-		tempoDecorrido = 0;
+		tempoDecorridoGameOver = 0;
+		tempoJogo = 0;
 		tempoGameOver = 2000;
-		pretoTransp = new Color(0, 0, 0, 128); // preto transparente
 
 		setFocusable(true); // para poder tratar eventos
 		setLayout(null);
@@ -91,6 +90,7 @@ public class Game extends JPanel {
 		while (true) {
 			tempoAtual = System.currentTimeMillis(); // tempo inicial desse quadro
 			tempoDelta = tempoAtual - tempoAnterior; // quanto tempo se passou desde o ultimo quadro
+			tempoJogo+=tempoDelta;
 
 			handlerEvent();
 			update(tempoDelta);
@@ -118,9 +118,7 @@ public class Game extends JPanel {
 		if(ESTADO == Estado.EXECUTANDO){
 			piso.update();
 			// atualiza o fundo
-			fundo.fundo1PosX = fundo.fundo1PosX + fundo.fundovelX;
-			fundo.fundo2PosX = fundo.fundo2PosX + fundo.fundovelX;
-			fundo.remontarFundo();
+			fundo.update();
 			// atualiza o personagem
 			tim.update();
 			tim.mudarQuadro(tempoDelta);
@@ -175,41 +173,51 @@ public class Game extends JPanel {
 		super.paintComponent(g);
 
 		// desenha o personagem na tela
-		g.drawImage(fundo.fundo1, fundo.fundo1PosX, fundo.fundoPosY, null);
-		g.drawImage(fundo.fundo2, fundo.fundo2PosX, fundo.fundoPosY, null);
+		g.drawImage(fundo.fundo1, (int)fundo.fundo1PosX, (int)fundo.fundoPosY, null);
+		g.drawImage(fundo.fundo2, (int)fundo.fundo2PosX, (int)fundo.fundoPosY, null);
 		geradorMostros.render(g); // pinta os monstros na tela
 		tim.render(g);
 		piso.render(g);
-
-
+		
+		
 		if(ESTADO==Estado.GAMEOVER){
-			tempoDecorrido+=tempoDelta;
+			tempoDecorridoGameOver+=tempoDelta;
 
-			g.setColor(pretoTransp);
-			g.fillRect(0,0,Principal.LARGURA_TELA, Principal.ALTURA_TELA);
-			
-			g.setFont(recursos.fontGameOver);
-			g.setColor(Color.WHITE);
-			g.drawString("GAME OVER!",(int)(Principal.LARGURA_TELA*0.4),(int)(Principal.ALTURA_TELA*0.2));
-			
-			if(tempoDecorrido>=tempoGameOver){
-				tempoDecorrido=0;
+			g.drawImage(recursos.telaGameOver, 0, 0, null);
+
+			if(tempoDecorridoGameOver>=tempoGameOver){
+				tempoDecorridoGameOver=0;
 				reiniciaJogo();
-				ESTADO=Estado.EXECUTANDO;
 			}
+		}else{
+			g.setFont(recursos.fontTexto);
+			g.setColor(Color.WHITE);
+			g.drawString("Tempo: "+tempoJogo/1000, 10, 30);
+			g.drawString("Recorde: "+(recursos.recorde/1000.0)+"s", 10, 70);
 		}
-
+		System.out.println(recursos.recorde);
 		Toolkit.getDefaultToolkit().sync(); // bug do linux		
 	}
 
 	public void reiniciaJogo(){
+		verificaRecorde();
+		Game.recursos.velocidadeJogo=1.0;
+		tempoJogo = 0;
 		tim.reiniciaJogo();
 		geradorMostros.reiniciaJogo();
 		piso.reiniciaJogo();
 		fundo.reiniciaJogo();
+		
+		ESTADO=Estado.EXECUTANDO;
+	}
+
+	public void verificaRecorde(){
+		if(tempoJogo>recursos.recorde){
+			recursos.recorde = tempoJogo;		
+		}
 	}
 
 	public enum Estado{
-		CARREGANDO, EXECUTANDO, PAUSADO, GAMEOVER;
+		CARREGANDO, EXECUTANDO, GAMEOVER;
 	}
 }

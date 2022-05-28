@@ -9,7 +9,6 @@ public class Principal {
 	
 	// construtor
 	public Principal() {
-
 		
 		JFrame janela = new JFrame("Jogo 2D");
 		Game game = new Game();

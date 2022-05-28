@@ -37,11 +37,13 @@ public class GeradorMostros {
         tempoDecorrido = 0;
         random = new Random();
         tempoGeracao = 2000;
-        tempoMin=2500;
-        tempoMax=5500;
+        tempoMin=1500;
+        tempoMax=3500;
     }
 
     public void update(long tempoDelta){
+        tempoMin=1500-(int)(Game.recursos.velocidadeJogo*100);
+        tempoMax=3500-(int)(Game.recursos.velocidadeJogo*100);
         // geração de monstros ------------------
         tempoDecorrido+=tempoDelta;
         if(tempoDecorrido >= tempoGeracao) { // a cada 1 segundo
@@ -98,6 +100,7 @@ public class GeradorMostros {
                 // recicla o mosntro
                 pilhaMonstrosDino.push(m);
                 listaMonstrosDino.remove(m);
+                Game.recursos.velocidadeJogo+=Game.recursos.fatorAceleracao;
             }
         }
         for(int i=0;i<listaMonstrosBola.size();i++){
@@ -107,6 +110,7 @@ public class GeradorMostros {
                 // recicla o mosntro
                 pilhaMonstrosBola.push(m);
                 listaMonstrosBola.remove(m);
+                Game.recursos.velocidadeJogo+=Game.recursos.fatorAceleracao;
             }
         }
     }

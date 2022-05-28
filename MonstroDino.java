@@ -12,8 +12,8 @@ public class MonstroDino {
 	public int correndoTempoQuadro;
 	public int correndoIndexAtual;
 
-	public int posX, posY, velX; // variáveis de posição e velocidade
-	public int colX, colY, colLargura, colAltura;
+	public double posX, posY, velX; // variáveis de posição e velocidade
+	public double colX, colY, colLargura, colAltura;
 	Color colColor;
 
 	long tempoDecorrido;
@@ -50,12 +50,13 @@ public class MonstroDino {
 	}
 
 	public void update(){
+		velX = -7*Game.recursos.velocidadeJogo;
 		posX = posX+velX;
 		colX = colX+velX;
 	}
 
 	public void render(Graphics g){
-        g.drawImage(obterQuadro(), posX, posY, null);
+        g.drawImage(obterQuadro(), (int)posX, (int)posY, null);
 		//g.setColor(colColor);
 		//g.fillRect(colX, colY, colLargura, colAltura);
 	}

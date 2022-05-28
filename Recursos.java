@@ -6,12 +6,17 @@ public class Recursos {
 	// atributos
 	BufferedImage spriteBraidRun,spriteBraidJump,braidDied;
 	BufferedImage spriteMostroBola,spriteMostroDino;
-	BufferedImage imgGround,imgFundo;
-	public Font fontGameOver;
+	BufferedImage imgGround,imgFundo, telaGameOver;
+	public Font fontTexto;
+	public double velocidadeJogo, fatorAceleracao;
+	long recorde;
 	
 	// construtor
 	public Recursos() {
-		fontGameOver = new Font("Arial narrow", Font.CENTER_BASELINE, 50);
+		recorde = 0;
+		velocidadeJogo = 1.0;
+		fatorAceleracao = 0.08;
+		fontTexto = new Font("Arial narrow", Font.CENTER_BASELINE, 30);
 		// carrega os sprites a partir do arquivo
 		try {
 			spriteBraidJump = ImageIO.read(getClass().getResource("/imgs/braid-jump.png"));
@@ -21,6 +26,7 @@ public class Recursos {
 			spriteMostroDino = ImageIO.read(getClass().getResource("/imgs/monster-dino.png"));
 			imgGround = ImageIO.read(getClass().getResource("/imgs/ground.png"));
 			imgFundo = ImageIO.read(getClass().getResource("/imgs/fundo.png"));
+			telaGameOver = ImageIO.read(getClass().getResource("/imgs/game-over-screen.png"));
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
