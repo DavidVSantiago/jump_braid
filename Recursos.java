@@ -17,8 +17,8 @@ public class Recursos {
 	public Font fontTexto;
 	public double velocidadeJogo, fatorAceleracao;
 	long recorde;
-	AudioInputStream streamMusicaJogo;
-	Clip clipMusicaJogo;
+	AudioInputStream streamMusicaJogo,streamSomPulo,streamSomQueda;
+	Clip clipMusicaJogo,clipSomPulo,clipSomQueda;
 
 	// construtor
 	public Recursos() {
@@ -39,7 +39,13 @@ public class Recursos {
 			telaLoading = ImageIO.read(getClass().getResource("/imgs/load-screen.png"));
 			// carega os arquivos de audio
 			streamMusicaJogo = AudioSystem.getAudioInputStream(getClass().getResource("audio/music.wav"));
+			streamSomPulo = AudioSystem.getAudioInputStream(getClass().getResource("audio/jump.wav"));
+			streamSomQueda= AudioSystem.getAudioInputStream(getClass().getResource("audio/toc.wav"));
 			clipMusicaJogo = AudioSystem.getClip();
+			clipSomPulo = AudioSystem.getClip();
+			clipSomPulo.open(streamSomPulo);
+			clipSomQueda= AudioSystem.getClip();
+			clipSomQueda.open(streamSomQueda);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -74,9 +80,16 @@ public class Recursos {
 	public void pararMusicaJogo() {
 		try {
 			clipMusicaJogo.stop();
-			//clipMusicaJogo.flush();
 		} catch (Exception e) {
-			//TODO: handle exception
+			e.printStackTrace();
 		}
+	}
+	public void tocarSomPulo(){
+		clipSomPulo.setFramePosition(0);
+		clipSomPulo.start(); 
+	}
+	public void tocarSomQueda(){
+		clipSomQueda.setFramePosition(0);
+		clipSomQueda.start(); 
 	}
 }

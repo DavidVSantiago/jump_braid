@@ -112,6 +112,7 @@ public class Game extends JPanel {
 		if(ESTADO == Estado.EXECUTANDO){
 			if(k_cima && tim.estado!=Tim.Estado.PULANDO){
 				tim.iniciarPulo();
+				recursos.tocarSomPulo();
 			}
 		}
 	}
@@ -151,6 +152,7 @@ public class Game extends JPanel {
 		if(tim.estado==Tim.Estado.PULANDO &&
 			(tim.posY+tim.pulandoAltura)>=tim.posY_inicial+tim.pulandoAltura){
 			tim.pararPulo();
+			recursos.tocarSomQueda();
 		}
 
 		// verifica a colisão do personagem com os monstros bola
@@ -160,6 +162,7 @@ public class Game extends JPanel {
 			&& tim.colY+tim.colAltura>=m.colY // lado superior do monstro
 			&& tim.colY<=m.colY+m.colAltura // lado inferior do monstro
 			){
+				recursos.tocarSomQueda();
 				ESTADO = Estado.GAMEOVER;
 				tim.estado = Tim.Estado.MORTO;
 				tempoJogoFinal = tempoJogo;
@@ -174,6 +177,7 @@ public class Game extends JPanel {
 			&& tim.colY+tim.colAltura>=m.colY // lado superior do monstro
 			&& tim.colY<=m.colY+m.colAltura // lado inferior do monstro
 			){
+				recursos.tocarSomQueda();
 				ESTADO = Estado.GAMEOVER;
 				tim.estado = Tim.Estado.MORTO;
 				tempoJogoFinal = tempoJogo;
