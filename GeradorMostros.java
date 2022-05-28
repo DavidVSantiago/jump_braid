@@ -128,5 +128,9 @@ public class GeradorMostros {
             pilhaMonstrosBola.push(m);
             listaMonstrosBola.remove(m);
         }
+        tempoGeracao = 2000;
+        tempoMin=1500;
+        tempoMax=3500;
+        tempoDecorrido=0;
 	}
 }

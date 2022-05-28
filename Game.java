@@ -3,8 +3,10 @@ import java.awt.Toolkit;
 import java.awt.Graphics;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+
 import javax.swing.JPanel;
-import java.awt.Color;
 
 public class Game extends JPanel {
 
@@ -27,7 +29,7 @@ public class Game extends JPanel {
 
 	// Estado do jogo
 	public Estado ESTADO;
-	long tempoDecorridoGameOver,tempoJogo,tempoGameOver;
+	long tempoDecorridoGameOver,tempoJogo,tempoJogoFinal,tempoGameOver,tempoCarregando;
 
 	// CONSTRUTOR ---------------------------------------------------------
 	public Game() {
@@ -70,6 +72,7 @@ public class Game extends JPanel {
 		tempoDecorridoGameOver = 0;
 		tempoJogo = 0;
 		tempoGameOver = 2000;
+		tempoCarregando = 2000;
 
 		setFocusable(true); // para poder tratar eventos
 		setLayout(null);
@@ -85,7 +88,6 @@ public class Game extends JPanel {
 
 	// GAMELOOP ---------------------------------------------------------
 	public void gameloop() {
-		ESTADO = Estado.EXECUTANDO;
 		tempoAnterior=System.currentTimeMillis();
 		while (true) {
 			tempoAtual = System.currentTimeMillis(); // tempo inicial desse quadro
@@ -126,6 +128,16 @@ public class Game extends JPanel {
 			geradorMostros.update(tempoDelta);
 
 			testeColisoes();
+		}else if(ESTADO==Estado.GAMEOVER){
+			tempoDecorridoGameOver+=tempoDelta;
+			if(tempoDecorridoGameOver>=tempoGameOver){
+				tempoDecorridoGameOver=0;
+				reiniciaJogo();
+			}
+		}else if(ESTADO==Estado.CARREGANDO){
+			if(tempoJogo>tempoCarregando){
+				reiniciaJogo();
+			}
 		}
 	}
 
@@ -150,6 +162,8 @@ public class Game extends JPanel {
 			){
 				ESTADO = Estado.GAMEOVER;
 				tim.estado = Tim.Estado.MORTO;
+				tempoJogoFinal = tempoJogo;
+				recursos.pararMusicaJogo();
 			}
 		}
 
@@ -162,6 +176,8 @@ public class Game extends JPanel {
 			){
 				ESTADO = Estado.GAMEOVER;
 				tim.estado = Tim.Estado.MORTO;
+				tempoJogoFinal = tempoJogo;
+				recursos.pararMusicaJogo();
 			}
 		}
 	}
@@ -171,6 +187,13 @@ public class Game extends JPanel {
 	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
+		g.setFont(recursos.fontTexto);
+		g.setColor(Color.WHITE);
+
+		if(ESTADO==Estado.CARREGANDO){	
+			g.drawImage(recursos.telaLoading, 0,0, null);
+			return;
+		}
 
 		// desenha o personagem na tela
 		g.drawImage(fundo.fundo1, (int)fundo.fundo1PosX, (int)fundo.fundoPosY, null);
@@ -181,39 +204,47 @@ public class Game extends JPanel {
 		
 		
 		if(ESTADO==Estado.GAMEOVER){
-			tempoDecorridoGameOver+=tempoDelta;
-
 			g.drawImage(recursos.telaGameOver, 0, 0, null);
-
-			if(tempoDecorridoGameOver>=tempoGameOver){
-				tempoDecorridoGameOver=0;
-				reiniciaJogo();
+			g.drawString("Tempo: "+(tempoJogoFinal/1000.0)+"s", (int)(Principal.LARGURA_TELA*0.36),(int)(Principal.ALTURA_TELA*0.5) );
+			if(tempoJogoFinal>recursos.recorde){
+				g.drawString("NOVO RECORDE!", (int)(Principal.LARGURA_TELA*0.36),(int)(Principal.ALTURA_TELA*0.65) );
 			}
 		}else{
-			g.setFont(recursos.fontTexto);
-			g.setColor(Color.WHITE);
 			g.drawString("Tempo: "+tempoJogo/1000, 10, 30);
 			g.drawString("Recorde: "+(recursos.recorde/1000.0)+"s", 10, 70);
 		}
-		System.out.println(recursos.recorde);
 		Toolkit.getDefaultToolkit().sync(); // bug do linux		
 	}
 
 	public void reiniciaJogo(){
+		ESTADO=Estado.EXECUTANDO;
+		recursos.tocarMusicaJogo();
 		verificaRecorde();
 		Game.recursos.velocidadeJogo=1.0;
 		tempoJogo = 0;
+		tempoJogoFinal = 0;
 		tim.reiniciaJogo();
 		geradorMostros.reiniciaJogo();
 		piso.reiniciaJogo();
 		fundo.reiniciaJogo();
-		
-		ESTADO=Estado.EXECUTANDO;
 	}
 
 	public void verificaRecorde(){
-		if(tempoJogo>recursos.recorde){
-			recursos.recorde = tempoJogo;		
+		if(tempoJogoFinal>recursos.recorde){
+			recursos.recorde = tempoJogoFinal;
+			salvarRecorde();		
+		}
+	}
+
+	public void salvarRecorde(){
+		BufferedWriter writer;
+		try{
+			String arquivo = "recorde.txt";
+   			writer = new BufferedWriter(new FileWriter(arquivo));
+			writer.write(""+recursos.recorde);
+			writer.close();
+		}catch(Exception e){
+			e.printStackTrace();
 		}
 	}
 
